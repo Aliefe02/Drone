@@ -1,9 +1,3 @@
-import sys
-
-#sys.stdout = open('/home/ali/Desktop/stdout.log', 'w')
-#sys.stderr = open('/home/ali/Desktop/stderr.log', 'w')
-
-
 from time import sleep
 sleep(2)
 from dronekit import connect,VehicleMode,LocationGlobalRelative,APIException
