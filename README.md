@@ -6,6 +6,7 @@ Requirements<br/>
 ---------------
 Flight controller with ArduPilot Software
 Raspberry Pi with necessary libraries installed for drone connection
+0.96 inch OLED display connected to RPi to display data
 2 LoRa devices (I use ra-02)
 Arduino Nano 
 
