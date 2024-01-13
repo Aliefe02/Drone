@@ -1,3 +1,9 @@
+import sys
+
+#sys.stdout = open('/home/ali/Desktop/stdout.log', 'w')
+#sys.stderr = open('/home/ali/Desktop/stderr.log', 'w')
+
+
 from time import sleep
 sleep(2)
 from dronekit import connect,VehicleMode,LocationGlobalRelative,APIException
@@ -76,13 +82,13 @@ def arm():
     print("Arming")
     vehicle.mode = VehicleMode("GUIDED")
     while vehicle.mode != 'GUIDED':
-        time.sleep(1)
+        sleep(1)
         print("Waiting for drone to enter GUIDED mode")
     vehicle.armed = True
     while vehicle.armed== False:
         print("Waiting for drone to become armed..")
         vehicle.armed = True
-        time.sleep(1)
+        sleep(1)
     print("\n[Vehicle is now armed]")
     print("[Props are spinning]")
     return None
@@ -94,14 +100,14 @@ def loiter():
 
     while vehicle.mode != 'GUIDED':
         print("Waiting for drone to enter GUIDED mode")
-        time.sleep(1)
+        sleep(1)
     print("Vehicle in GUIDED mode")
 
     if manualArm == False:
         vehicle.armed = True
         while vehicle.armed == False:
             print("Waiting for vehicle to become armed")
-            time.sleep(1)
+            sleep(1)
     else:
         if vehicle.armed == False:
             print("Exiting script. Failed when arming")
@@ -114,7 +120,7 @@ def loiter():
         print("Current Altitude: "+str(vehicle.location.global_relative_frame.alt))
         if vehicle.location.global_relative_frame.alt >= .95*targetHeight:
             break
-        time.sleep(0.5)
+        sleep(0.5)
     print("Target altitude reached!")
     vehicle.mode = VehicleMode("LOITER")
     return None
@@ -127,14 +133,14 @@ def hover():
 
     while vehicle.mode != 'GUIDED':
         print("Waiting for drone to enter GUIDED mode")
-        time.sleep(1)
+        sleep(1)
     print("Vehicle in GUIDED mode")
 
     if manualArm == False:
         vehicle.armed = True
         while vehicle.armed == False:
             print("Waiting for vehicle to become armed")
-            time.sleep(1)
+            sleep(1)
     else:
         if vehicle.armed == False:
             print("Exiting script. Failed when arming")
@@ -147,7 +153,7 @@ def hover():
         print("Current Altitude: "+str(vehicle.location.global_relative_frame.alt))
         if vehicle.location.global_relative_frame.alt >= .95*targetHeight:
             break
-        time.sleep(0.5)
+        sleep(0.5)
     print("Target altitude reached!")
 
     return None
@@ -160,14 +166,14 @@ def take_off_and_land():
 
     while vehicle.mode != 'GUIDED':
         print("Waiting for drone to enter GUIDED mode")
-        time.sleep(.5)
+        sleep(.5)
     print("Vehicle in GUIDED mode")
 
     if manualArm == False:
         vehicle.armed = True
         while vehicle.armed == False:
             print("Waiting for vehicle to become armed")
-            time.sleep(1)
+            sleep(1)
     else:
         if vehicle.armed == False:
             print("Exiting script. Failed when arming")
@@ -179,7 +185,7 @@ def take_off_and_land():
         print("Current Altitude: "+str(vehicle.location.global_relative_frame.alt))
         if vehicle.location.global_relative_frame.alt >= .95*2:
             break
-        time.sleep(0.5)
+        sleep(0.5)
     print("Target altitude reached!")
 
     return None
