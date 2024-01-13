@@ -1,15 +1,9 @@
-import sys
-
-#sys.stdout = open('/home/ali/Desktop/stdout.log', 'w')
-#sys.stderr = open('/home/ali/Desktop/stderr.log', 'w')
-
-import time
-time.sleep(2)
+from time import sleep
+sleep(2)
 from dronekit import connect,VehicleMode,LocationGlobalRelative,APIException
 import socket
 import math
 import argparse
-from time import sleep
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 from PIL import Image
