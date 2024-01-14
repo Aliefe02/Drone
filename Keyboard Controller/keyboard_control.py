@@ -197,6 +197,7 @@ def move(x, y, z,yaw):
 
     vehicle.send_mavlink(msg)
 
+
 class LoRaRcvCont(LoRa):
     def __init__(self, verbose=False):
         super(LoRaRcvCont, self).__init__(verbose)
@@ -216,6 +217,10 @@ class LoRaRcvCont(LoRa):
         self.set_modem_config_1()
         payload = self.read_payload(nocheck=True)
         data =remove_null_bytes(bytearray(payload).decode('utf-8', 'ignore').strip())
+        
+        if "L" in data:
+            hover()
+            return
 
         # x positive is forward
         # y positive is right
@@ -258,10 +263,10 @@ try:
     lora = LoRaRcvCont(verbose=False)
     lora.set_mode(MODE.STDBY)
     lora.set_pa_config(pa_select=1)
-
+    
     draw_info("READY!")
+    #hover()
     lora.start()
-    hover()
 except KeyboardInterrupt:
     print("\nKeyboardInterrupt")
 except:
