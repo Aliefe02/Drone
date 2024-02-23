@@ -1,7 +1,7 @@
 import tkinter as tk
 import serial
 
-#ser = serial.Serial('COM13', 9600)
+ser = serial.Serial('COM13', 9600)
 class DrawingApp:
     def __init__(self, master):
         self.master = master
@@ -105,8 +105,8 @@ class DrawingApp:
 def send_path_to_drone(path, height, cell_length):
     data = {'path':path,'height':height,'cell_length':cell_length,'check':'correct'}
     print(str(data))
-    #ser.write(str(data).encode())
-    #ser.write(b'\n')
+    ser.write(str(data).encode())
+    ser.write(b'\n')
 
 
 def main():
