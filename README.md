@@ -1,13 +1,18 @@
 # Drone
 Drone controlling programs to control a drone using Raspberry Pi
 
+# Ground Station
+Draw a path on the desktop application and set parameters, hit Start Drone. Drone will take off and follow that path according to your parameters.
+
+# Keyboard Controller
+Control your drone using keyboard of your pc. Key bindings are written in the code.
 
 Requirements<br/>
 ---------------
-Flight controller with ArduPilot Software
-Raspberry Pi with necessary libraries installed for drone connection
-0.96 inch OLED display connected to RPi to display data
-2 LoRa devices (I use ra-02)
-Arduino Nano 
+Flight controller with ArduPilot Software<br/>
+Raspberry Pi with necessary libraries installed for drone connection<br/>
+0.96 inch OLED display connected to RPi to display data<br/>
+2 LoRa devices (I use ra-02)<br/>
+Arduino Nano <br/>
 
 Connect 1 LoRa to RPi and other to Nano. Connect Nano to laptop to use serial connection
