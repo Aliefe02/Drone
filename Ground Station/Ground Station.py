@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import serial
 import json
-#ser = serial.Serial('COM11', 9600)
+ser = serial.Serial('COM11', 9600)
 class DrawingApp:
     def __init__(self, master):
         self.master = master
@@ -108,8 +108,8 @@ def send_path_to_drone(path, height, cell_length):
     data = {"path":path,"height":height,"cell_length":cell_length,"check":"correct"}
     data_string = json.dumps(data)
     print(data_string)
-    #ser.write(data_string.encode())
-    #ser.write(b'\n')
+    ser.write(data_string.encode())
+    ser.write(b'\n')
 
 
 def main():
