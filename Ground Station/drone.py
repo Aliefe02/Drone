@@ -3,14 +3,34 @@ import time
 time.sleep(2)
 
 import sys
-sys.stdout = open('/home/ali/Desktop/stdout.log', 'w')
-sys.stderr = open('/home/ali/Desktop/stderr.log', 'w')
+import os
+import glob
 
-from dronekit import connect,VehicleMode,LocationGlobalRelative,APIException
-import socket
+# Define the directory where the log files are stored
+log_directory = '/home/ali/Desktop/path_follow/'
+
+# Function to count files and generate new file name
+def generate_log_file_name(base_directory, prefix):
+    # List all files matching the pattern (e.g., stdout*.log or stderr*.log)
+    files = glob.glob(os.path.join(base_directory, f'{prefix}*.log'))
+    
+    # Generate the new file name based on the number of existing files
+    new_file_name = f'{prefix}{len(files) + 1}.log'
+    return os.path.join(base_directory, new_file_name)
+
+# Generate new file names for stdout and stderr
+stdout_file_name = generate_log_file_name(log_directory, 'stdout')
+stderr_file_name = generate_log_file_name(log_directory, 'stderr')
+
+# Redirect stdout and stderr to the new files
+sys.stdout = open(stdout_file_name, 'w')
+sys.stderr = open(stderr_file_name, 'w')
+import json
+from dronekit import connect,VehicleMode #,LocationGlobalRelative,APIException
+#import socket
 import math
-import argparse
-import Adafruit_GPIO.SPI as SPI
+#import argparse
+#import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 from PIL import Image
 from PIL import ImageDraw
@@ -268,6 +288,7 @@ def follow_path(path,height,cell_length):
                             # 0 -> x                       z  +  > go down
     prev_cord = path[0]     # 1 -> y                      yaw 60 > turn right 60 degrees
     degree = 0
+    draw_on_display("Starting Route")
     for cord in path[1:]:
         if cord[0] == prev_cord[0] and cord[1] > prev_cord[1]:          # Go forward
             degree = point_forward(degree)
@@ -326,7 +347,8 @@ class LoRaRcvCont(LoRa):
         data =remove_null_bytes(bytearray(payload).decode('utf-8', 'ignore').strip())
 
         if 'correct' in data: # Correct data is received and path is ready
-            data = dict(data)
+            data = json.loads(data)
+            draw_on_display("Setting Up!")
             follow_path(data['path'],data['height'],data["cell_length"])    # Start route
 
         self.set_mode(MODE.SLEEP)
