@@ -1,14 +1,15 @@
 import tkinter as tk
+import tkinter.ttk as ttk
 import serial
-
-ser = serial.Serial('COM13', 9600)
+import json
+#ser = serial.Serial('COM11', 9600)
 class DrawingApp:
     def __init__(self, master):
         self.master = master
         self.master.title("Drawing App")
 
         # Parameters on the right
-        self.param_frame = tk.Frame(master, padx=10)
+        self.param_frame = tk.Frame(master, padx=10,bg='black')
         self.param_frame.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Create labels and textboxes for parameters
@@ -16,7 +17,7 @@ class DrawingApp:
 
         label = tk.Label(self.param_frame, text='Height')
         label.pack(pady=2)
-        entry = tk.Entry(self.param_frame)
+        entry = ttk.Entry(self.param_frame)
         entry.insert(0, 2)
         entry.pack(pady=5)
         self.param_entries.append(entry)
@@ -24,24 +25,25 @@ class DrawingApp:
 
         label = tk.Label(self.param_frame, text='Cell Length')
         label.pack(pady=2)
-        entry = tk.Entry(self.param_frame)
+        entry = ttk.Entry(self.param_frame)
         entry.insert(0, 1)
         entry.pack(pady=5)
         self.param_entries.append(entry)
 
         # Buttons to trigger actions
-        self.draw_button = tk.Button(self.param_frame, text="Start Drone", command=self.draw)
+        self.draw_button = ttk.Button(self.param_frame, text="Start Drone", command=self.draw)
         self.draw_button.pack(pady=5)
 
-        self.reset_button = tk.Button(self.param_frame, text="Reset", command=self.reset_drawings)
+
+        self.reset_button = ttk.Button(self.param_frame, text="Reset", command=self.reset_drawings)
         self.reset_button.pack(pady=5)
 
         # Canvas on the left
-        self.canvas = tk.Canvas(master, bg="white")
+        self.canvas = tk.Canvas(master, bg="black")
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Initialize grid size
-        self.grid_size = 50
+        self.grid_size = 20
 
         # Drawn squares and initial grid
         self.drawn_squares = []
@@ -76,7 +78,7 @@ class DrawingApp:
         x2 = x1 + square_size
         y2 = y1 + square_size
 
-        self.canvas.create_rectangle(x1, y1, x2, y2, fill="black")
+        self.canvas.create_rectangle(x1, y1, x2, y2, fill="white")
 
     def release_button(self, event):
         pass  # Add any cleanup or additional actions here
@@ -103,10 +105,11 @@ class DrawingApp:
         self.redraw_grid()
 
 def send_path_to_drone(path, height, cell_length):
-    data = {'path':path,'height':height,'cell_length':cell_length,'check':'correct'}
-    print(str(data))
-    ser.write(str(data).encode())
-    ser.write(b'\n')
+    data = {"path":path,"height":height,"cell_length":cell_length,"check":"correct"}
+    data_string = json.dumps(data)
+    print(data_string)
+    #ser.write(data_string.encode())
+    #ser.write(b'\n')
 
 
 def main():
