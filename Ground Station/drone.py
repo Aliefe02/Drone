@@ -26,11 +26,8 @@ stderr_file_name = generate_log_file_name(log_directory, 'stderr')
 sys.stdout = open(stdout_file_name, 'w')
 sys.stderr = open(stderr_file_name, 'w')
 import json
-from dronekit import connect,VehicleMode #,LocationGlobalRelative,APIException
-#import socket
+from dronekit import connect,VehicleMode 
 import math
-#import argparse
-#import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 from PIL import Image
 from PIL import ImageDraw
@@ -86,7 +83,6 @@ def draw_movement(x,y,z,yaw):
     disp.display()
 
 
-
 def connectMyCopter():
     print("Starting the connection")
     connection_string = "/dev/ttyACM0"
@@ -95,86 +91,6 @@ def connectMyCopter():
     vehicle = connect(connection_string,baud=baud_rate,wait_ready=True)
     print("Conected")
     return vehicle
-
-def arm():
-    print("Arming")
-    vehicle.mode = VehicleMode("GUIDED")
-    while vehicle.mode != 'GUIDED':
-        time.sleep(1)
-        print("Waiting for drone to enter GUIDED mode")
-    vehicle.armed = True
-    while vehicle.armed== False:
-        print("Waiting for drone to become armed..")
-        vehicle.armed = True
-        time.sleep(1)
-    print("\n[Vehicle is now armed]")
-    print("[Props are spinning]")
-    return None
-
-def loiter():
-    print('Arming Vehicle')
-
-    vehicle.mode = VehicleMode("GUIDED")
-
-    while vehicle.mode != 'GUIDED':
-        print("Waiting for drone to enter GUIDED mode")
-        time.sleep(1)
-    print("Vehicle in GUIDED mode")
-
-    if manualArm == False:
-        vehicle.armed = True
-        while vehicle.armed == False:
-            print("Waiting for vehicle to become armed")
-            time.sleep(1)
-    else:
-        if vehicle.armed == False:
-            print("Exiting script. Failed when arming")
-            return None
-    print("Vehicle is ARMED")
-    draw_on_display("Flying")
-    vehicle.simple_takeoff(2)
-
-    while True:
-        print("Current Altitude: "+str(vehicle.location.global_relative_frame.alt))
-        if vehicle.location.global_relative_frame.alt >= .95*targetHeight:
-            break
-        time.sleep(0.5)
-    print("Target altitude reached!")
-    vehicle.mode = VehicleMode("LOITER")
-    return None
-
-
-def hover():
-    print('Arming Vehicle')
-
-    vehicle.mode = VehicleMode("GUIDED")
-
-    while vehicle.mode != 'GUIDED':
-        print("Waiting for drone to enter GUIDED mode")
-        time.sleep(1)
-    print("Vehicle in GUIDED mode")
-
-    if manualArm == False:
-        vehicle.armed = True
-        while vehicle.armed == False:
-            print("Waiting for vehicle to become armed")
-            time.sleep(1)
-    else:
-        if vehicle.armed == False:
-            print("Exiting script. Failed when arming")
-            return None
-    print("Vehicle is ARMED")
-    draw_on_display("Flying")
-    vehicle.simple_takeoff(2)
-
-    while True:
-        print("Current Altitude: "+str(vehicle.location.global_relative_frame.alt))
-        if vehicle.location.global_relative_frame.alt >= .95*targetHeight:
-            break
-        time.sleep(0.5)
-    print("Target altitude reached!")
-
-    return None
 
 def move(x, y, z,yaw):
     draw_movement(x,y,z,yaw)
@@ -190,6 +106,22 @@ def move(x, y, z,yaw):
 
     vehicle.send_mavlink(msg)
     time.sleep(1)
+
+def rotate(rotation,direction):
+    for i in range(abs(rotation/30)):
+        draw_movement(rotation)
+        msg = vehicle.message_factory.set_position_target_local_ned_encode(
+            0,
+            0, 0,
+            mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,
+            0b0000011111000111,
+            0, 0, 0,
+            0, 0, 0,
+            0, 0, 0,
+            0, math.radians(30*(direction)))
+
+        vehicle.send_mavlink(msg)
+        time.sleep(0.5)
 
 def take_off(height):
     print('Arming Vehicle')
@@ -215,7 +147,7 @@ def take_off(height):
     draw_on_display("Flying")
     while True:
         print("Current Altitude: "+str(vehicle.location.global_relative_frame.alt))
-        if vehicle.location.global_relative_frame.alt >= .95*2:
+        if vehicle.location.global_relative_frame.alt >= .95*int(height):
             break
         time.sleep(0.5)
     print("Target altitude reached!")
@@ -224,31 +156,35 @@ def take_off(height):
 
 def point_forward(degree):
     rotation = 0
+    direction = 1
     if degree != 0:
         if degree == 90:
             rotation = -90
+            direction = -1
         elif degree == 270:
             rotation = 90
         elif degree == 180:
             rotation = 180
-        move(0,0,0,rotation)
+        rotate(rotation,direction)
     return 0  
   
 def point_right(degree):
     rotation = 0
+    direction = 1
     if degree != 90:
         if degree == 0:     
             rotation = 90
         elif degree == 180:
             rotation = -90
+            direction = -1
         elif degree == 270:
             rotation = 180
-        
-        move(0,0,0,rotation)
+        rotate(rotation,direction)
     return 90
 
 def point_backwards(degree):
     rotation = 0
+    direction = 1
     if degree != 180:
         if degree == 0:
             rotation = 180
@@ -256,19 +192,22 @@ def point_backwards(degree):
             rotation = 90
         elif degree == 270:
             rotation = -90
-        move(0,0,0,rotation)
+            direction = -1
+        rotate(rotation,direction)
     return 180
 
 def point_left(degree):
     rotation = 0
+    direction = 1
     if degree != 270:
         if degree == 0:
             rotation = -90
+            direction = -1
         elif degree == 90:
             rotation = 180
         elif degree == 180:
             rotation = 90
-        move(0,0,0,rotation)
+        rotate(rotation,direction)
     return 270
 
 def go_forward():
@@ -286,38 +225,47 @@ def follow_path(path,height,cell_length):
     draw_on_display("Drone Starting!!!")                #  x  +  > forward
     take_off(height)                                    #  y  +  > go right
                             # 0 -> x                       z  +  > go down
-    prev_cord = path[0]     # 1 -> y                      yaw 60 > turn right 60 degrees
+    prev_cord = path[0]     # 1 -> y                      yaw 60 > turn right 60 degrees, 60 degrees in 1 second
     degree = 0
     draw_on_display("Starting Route")
+    print(path)
     for cord in path[1:]:
-        if cord[0] == prev_cord[0] and cord[1] > prev_cord[1]:          # Go forward
+        if cord[0] == prev_cord[0] and cord[1] < prev_cord[1]:          # Go forward
+            print("Forward")
             degree = point_forward(degree)
             go_forward()
-        elif cord[0] == prev_cord[0] and cord[1] < prev_cord[1]:        # Go backwards
+        elif cord[0] == prev_cord[0] and cord[1] > prev_cord[1]:        # Go backwards
+            print("Backwards")
             degree = point_backwards(degree)
             go_forward()
         elif cord[0] < prev_cord[0] and cord[1] == prev_cord[1]:        # Turn left, go 1 forward
+            print("Left")
             degree = point_left(degree)
             go_forward()
         elif cord[0] > prev_cord[0] and cord[1] == prev_cord[1]:        # Turn right, go 1 forward
+            print("Right")
             degree = point_right(degree)
             go_forward()
-        elif cord[0] > prev_cord[0] and cord[1] > prev_cord[1]:         # Go forward 1, right 1
+        elif cord[0] > prev_cord[0] and cord[1] < prev_cord[1]:         # Go forward 1, right 1
+            print("Right Forward")
             degree = point_forward(degree)
             go_forward()
             degree = point_right(degree)
             go_forward()
-        elif cord[0] < prev_cord[0] and cord[1] > prev_cord[1]:         # Go forward 1, left 1
+        elif cord[0] < prev_cord[0] and cord[1] < prev_cord[1]:         # Go forward 1, left 1
+            print("Left Forward")
             degree = point_forward(degree)
             go_forward()
             degree = point_left(degree)
             go_forward()
-        elif cord[0] > prev_cord[0] and cord[1] < prev_cord[1]:         # Go backward 1, right 1
+        elif cord[0] > prev_cord[0] and cord[1] > prev_cord[1]:         # Go backward 1, right 1
+            print("Right Backwards")
             degree = point_backwards(degree)
             go_forward()
             degree = point_right(degree)
             go_forward()
-        elif cord[0] < prev_cord[0] and cord[1] < prev_cord[1]:         # Go backward 1, left 1
+        elif cord[0] < prev_cord[0] and cord[1] > prev_cord[1]:         # Go backward 1, left 1
+            print("Left Backwards")
             degree = point_backwards(degree)
             go_forward()
             degree = point_left(degree)
